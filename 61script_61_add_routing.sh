@@ -1,3 +1,11 @@
+# 🚀 SCRIPT 61 - ADD DETAILED FORM ROUTING
+
+echo "🚀 Adding routing for detailed VAT input form..."
+
+cd f/src
+
+# Update App.tsx to include new route
+cat > App.tsx << 'EOF'
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
 import VatCalculator from './VatCalculator'
 import VatForm from './VatForm'
@@ -132,3 +140,14 @@ function App() {
 }
 
 export default App
+EOF
+
+# Update package.json version to 1.2.0
+cd ..
+npm version 1.2.0 --no-git-tag-version
+
+echo "✅ Routing for detailed form added!"
+echo "🔄 Version updated to 1.2.0!"
+echo "🎨 Navigation enhanced with 3 pages!"
+echo ""
+echo "🚀 Ready to test detailed VAT input form!"
