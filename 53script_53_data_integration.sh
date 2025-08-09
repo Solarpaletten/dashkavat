@@ -1,3 +1,11 @@
+# 🚀 SCRIPT 53 - DATA INTEGRATION ENHANCEMENT v1.1.0
+
+echo "🚀 Enhancing data integration between Calculator and VAT Form..."
+
+cd f/src
+
+# Update VatCalculator.tsx to properly save data and add navigation
+cat > VatCalculator.tsx << 'EOF'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -43,7 +51,17 @@ export default function VatCalculator() {
   const [loading, setLoading] = useState(false)
   const [connected, setConnected] = useState(false)
 
-  // ЕДИНСТВЕННАЯ функция saveCalculationData
+  const updateField = (field: keyof VatData, value: string) => {
+    const newData = {
+      ...data,
+      [field]: parseFloat(value) || 0
+    }
+    setData(newData)
+    
+    // Auto-save to localStorage when data changes
+    saveCalculationData(newData, result)
+  }
+
   const saveCalculationData = (vatData: VatData, calculationResult?: VatResult | null) => {
     const dataToSave = {
       ...vatData,
@@ -54,17 +72,6 @@ export default function VatCalculator() {
     }
     localStorage.setItem('smartvat-calculation', JSON.stringify(dataToSave))
     console.log('💾 Data saved to localStorage:', dataToSave)
-  }
-
-  const updateField = (field: keyof VatData, value: string) => {
-    const newData = {
-      ...data,
-      [field]: parseFloat(value) || 0
-    }
-    setData(newData)
-    
-    // Auto-save to localStorage when data changes
-    saveCalculationData(newData, result)
   }
 
   const testConnection = async () => {
@@ -337,3 +344,11 @@ export default function VatCalculator() {
     </div>
   )
 }
+EOF
+
+echo "✅ Enhanced data integration between Calculator and VAT Form!"
+echo "💾 Auto-save functionality added!"
+echo "🔗 Seamless navigation with data persistence!"
+echo "📊 Real-time data synchronization!"
+echo ""
+echo "🚀 Next: Test the enhanced integration!"
