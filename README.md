@@ -1,78 +1,39 @@
-# React + TypeScript + Vite
+🚀 EXCELLENT CHOICE! Ветка feature/core-migration - идеальное начало!
+✅ Branch created: feature/core-migration
+✅ Ready for core logic migration
+✅ Safe environment for experimentation
+🎯 Mission Plan для core-migration:
+Phase 1: Analysis & Comparison
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Audit current state:
 
-Currently, two official plugins are available:
+src/core/SmartVatCalculator.ts (что уже есть)
+dashkasmartvat/js/vat-calculator.js (что работает в демо)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+Data comparison:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+src/data/companies.json vs dashkasmartvat/data/companies.json
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Phase 2: Core Logic Migration
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-// src/pages/vatdeclaration.js
+Extract best practices from vanilla JS
+Enhance TypeScript implementation
+Preserve working calculations from demo
 
-import updateDisplay from '../displayUpdater.js';
-import { loadRealData, calculateTax } from '../../../src/calculators/SmartVatCalculator.js';
+Phase 3: Testing & Validation
 
-export function renderVATDeclaration() {
-  const main = document.getElementById('main');
-  if (!main) return;
+Unit tests for calculations
+Integration testing
+German tax compliance validation
 
-  // Подключаем HTML шаблон декларации (можно будет сделать через fetch или шаблонную строку)
-  main.innerHTML = `
-    <section>
-      <h1>Umsatzsteuer-Voranmeldung</h1>
-      <div id="vatFormContainer">
-        <!-- Здесь будет вставляться декларация -->
-      </div>
-    </section>
-  `;
+🔥 Let's start with analysis!
+Хотите начать с:
 
-  // Выполняем логику отрисовки и расчёта
-  updateDisplay();
-  loadRealData();
-  calculateTax();
-}
+Анализа текущего SmartVatCalculator.ts?
+Изучения работающей логики из vat-calculator.js?
+Сравнения данных companies.json?
+
+Ready to dive deep into the core! Какой компонент анализируем первым? 💫
