@@ -1,3 +1,14 @@
+# 🚀 SCRIPT 54 - FIX DUPLICATE FUNCTION ERROR
+
+echo "🚨 Fixing duplicate function error in VatCalculator.tsx..."
+
+cd f/src
+
+# Backup current file
+cp VatCalculator.tsx VatCalculator.tsx.backup
+
+# Remove duplicate lines and fix the file
+cat > VatCalculator.tsx << 'EOF'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -337,3 +348,10 @@ export default function VatCalculator() {
     </div>
   )
 }
+EOF
+
+echo "✅ Duplicate function error fixed!"
+echo "🧹 Clean VatCalculator.tsx created!"
+echo "💾 Auto-save functionality preserved!"
+echo ""
+echo "🚀 Restarting frontend server..."
