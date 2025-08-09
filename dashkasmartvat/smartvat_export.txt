@@ -1,0 +1,1792 @@
+=== ./data/companies.json ===
+{
+  "version": "2.0",
+  "lastUpdated": "2025-03-31",
+  "software": "IT AI SOLAR Dashka Smartvatde",
+  "companies": {
+    "ASSET LOGISTICS GMBH": {
+      "name": "ASSET LOGISTICS GMBH",
+      "address": "Köthen, Kurze Strase 6, Germany, 06366", 
+      "hrb": "189525",
+      "steuernummer": "DE987654321",
+      "period": "April 2025",
+      "vatData": {
+        "field10": 0,
+        "field81a": 5000.00,
+        "field81b": 0.00,
+        "field41a": 0.00,
+        "field41b": 8000.00,
+        "field43": 2000.00,
+        "field66": 950.00,
+        "field62": 0.00,
+        "field67": 0.00
+      },
+      "notes": "Солнечные технологии и оборудование"
+    },
+    "AI_CONSULTING": {
+      "name": "AI CONSULTING GMBH",
+      "address": "Tech Park 5, 80333 München",
+      "hrb": "56789",
+      "steuernummer": "DE555666777",
+      "period": "April 2025",
+      "vatData": {
+        "field10": 0,
+        "field81a": 15000.00,
+        "field81b": 500.00,
+        "field41a": 5000.00,
+        "field41b": 12000.00,
+        "field43": 0.00,
+        "field66": 2850.00,
+        "field62": 0.00,
+        "field67": 950.00
+      },
+      "notes": "AI консалтинг и разработка"
+    },
+    "DASHKA_SERVICES": {
+      "name": "DASHKA SERVICES GMBH",
+      "address": "Innovation Hub 1, 22765 Hamburg",
+      "hrb": "67890",
+      "steuernummer": "DE333444555",
+      "period": "März 2025",
+      "vatData": {
+        "field10": 0,
+        "field81a": 3000.00,
+        "field81b": 1200.00,
+        "field41a": 7500.00,
+        "field41b": 4500.00,
+        "field43": 1000.00,
+        "field66": 570.00,
+        "field62": 380.00,
+        "field67": 0.00
+      },
+      "notes": "Умные сервисы и автоматизация"
+    }
+  },
+  "metadata": {
+    "totalCompanies": 4,
+    "defaultCompany": "ASSET_LOGISTICS",
+    "supportedPeriods": ["März 2025", "April 2025", "Mai 2025"],
+    "vatRates": {
+      "standard": 0.19,
+      "reduced": 0.07,
+      "zero": 0.00
+    }
+  }
+}
+=== ./readme/indexvat.html ===
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SWAPOIL — стартовая страница</title>
+</head>
+<body style="text-align:center; font-family:sans-serif;">
+  <h1>🌐 SWAPOIL.DE</h1>
+  <p>Добро пожаловать! Сервер работает.</p>
+  <p><a href="http://smartvat.swapoil.de">Перейти в VAT-декларацию</a></p>
+</body>
+</html>=== ./readme/vat-calculator copy.js ===
+/**
+ * IT AI SOLAR Dashka SmartStb - VAT Calculator Module
+ * Модуль расчета НДС для немецких деклараций
+ * @author Dasha's Team & Jimmy
+ * @version 2.0
+ */
+
+class VATCalculator {
+    constructor() {
+        this.vatRate19 = 0.19;
+        this.initialized = false;
+    }
+
+    init() {
+        if (this.initialized) return;
+        
+        this.setupEventListeners();
+        this.loadDefaultData();
+        this.initialized = true;
+        console.log('🚀 VAT Calculator initialized');
+    }
+
+    setupEventListeners() {
+        const inputFields = [
+            'field81a', 'field81b', 'field41a', 'field41b', 
+            'field43', 'field66', 'field62', 'field67'
+        ];
+
+        inputFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element) {
+                element.addEventListener('input', () => this.handleInputChange(fieldId));
+            }
+        });
+    }
+
+    handleInputChange(fieldId) {
+        if (fieldId === 'field81a' || fieldId === 'field81b') {
+            this.updateTotal81();
+        } else if (fieldId === 'field41a' || fieldId === 'field41b') {
+            this.updateTotal41();
+        } else {
+            this.calculateTax();
+        }
+    }
+
+    getFieldValue(fieldId) {
+        const element = document.getElementById(fieldId);
+        return parseFloat(element?.value) || 0;
+    }
+
+    setFieldValue(fieldId, value) {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.value = value.toFixed(2);
+        }
+    }
+
+    updateTotal81() {
+        const field81a = this.getFieldValue('field81a');
+        const field81b = this.getFieldValue('field81b');
+        const total81 = field81a + field81b;
+        
+        this.setFieldValue('field81', total81);
+        
+        const vat81c = field81a * this.vatRate19;
+        this.setFieldValue('field81c', vat81c);
+        
+        this.calculateTax();
+    }
+
+    updateTotal41() {
+        const field41a = this.getFieldValue('field41a');
+        const field41b = this.getFieldValue('field41b');
+        const total41 = field41a + field41b;
+        
+        this.setFieldValue('field41', total41);
+        
+        const vat41c = field41b * this.vatRate19;
+        this.setFieldValue('field41c', vat41c);
+        
+        this.calculateTax();
+    }
+
+    calculateTax() {
+        const field81a = this.getFieldValue('field81a');
+        const field41b = this.getFieldValue('field41b');
+        
+        const vat81c = field81a * this.vatRate19;
+        const vat41c = field41b * this.vatRate19;
+        const totalOutputVat = vat41c;
+        
+        this.setFieldValue('field81c', vat81c);
+        this.setFieldValue('field41c', vat41c);
+        
+        const inputVat66 = this.getFieldValue('field66');
+        const inputVat62 = this.getFieldValue('field62');
+        const inputVat67 = this.getFieldValue('field67');
+        const totalInputVat = inputVat66 + inputVat62 + inputVat67;
+        
+        const balance = totalOutputVat - totalInputVat;
+        this.setFieldValue('field83', balance);
+        
+        this.calculateProfit();
+        this.renderResult(balance, vat81c, vat41c, totalOutputVat, totalInputVat);
+        
+        return {
+            balance,
+            vat81c,
+            vat41c,
+            totalOutputVat,
+            totalInputVat
+        };
+    }
+
+    calculateProfit() {
+        const revenue41 = this.getFieldValue('field41');
+        const costs81 = this.getFieldValue('field81');
+        const plannedProfit = revenue41 - costs81;
+        
+        this.setFieldValue('plannedProfit', plannedProfit);
+        
+        const profitBreakdown = document.getElementById('profitBreakdown');
+        if (profitBreakdown) {
+            const profitColor = plannedProfit >= 0 ? '#388e3c' : '#d32f2f';
+            const profitIcon = plannedProfit >= 0 ? '📈' : '📉';
+            
+            profitBreakdown.innerHTML = `
+                Выручка (41): <strong style="color: #388e3c;">${revenue41.toFixed(2)} €</strong><br>
+                Затраты (81): <strong style="color: #d32f2f;">${costs81.toFixed(2)} €</strong><br>
+                ${profitIcon} <strong style="color: ${profitColor};">Плановая прибыль: ${plannedProfit.toFixed(2)} €</strong>
+            `;
+        }
+        
+        return plannedProfit;
+    }
+
+    renderResult(balance, vat81c, vat41c, totalOutputVat, totalInputVat) {
+        const resultDiv = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        
+        if (!resultDiv || !resultText) return;
+        
+        const field81a = this.getFieldValue('field81a');
+        const field41b = this.getFieldValue('field41b');
+        const revenue41 = this.getFieldValue('field41');
+        const costs81 = this.getFieldValue('field81');
+        const plannedProfit = revenue41 - costs81;
+        
+        let statusHTML = '';
+        let statusColor = '';
+        
+        if (balance > 0) {
+            statusHTML = `💸 К ДОПЛАТЕ: ${balance.toFixed(2)} €`;
+            statusColor = '#d32f2f';
+        } else if (balance < 0) {
+            statusHTML = `💰 К ВОЗВРАТУ: ${Math.abs(balance).toFixed(2)} €`;
+            statusColor = '#388e3c';
+        } else {
+            statusHTML = `⚖️ БАЛАНС: 0.00 €`;
+            statusColor = '#1976d2';
+        }
+        
+        resultText.innerHTML = `
+            <strong style="color: ${statusColor}; font-size: 20px;">${statusHTML}</strong><br><br>
+            <div style="text-align: left; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+                📊 <strong>Расчет:</strong><br>
+                81c (19% с ${field81a.toFixed(2)}€): ${vat81c.toFixed(2)} € <em>(не учитывается в 83)</em><br>
+                41c (19% с ${field41b.toFixed(2)}€): <strong>${vat41c.toFixed(2)} €</strong><br>
+                <em>Начисленный НДС для 83: ${totalOutputVat.toFixed(2)} €</em><br><br>
+                Зачетный НДС (66+62+67): <strong>${totalInputVat.toFixed(2)} €</strong><br><br>
+                <strong>83 = ${totalOutputVat.toFixed(2)} - ${totalInputVat.toFixed(2)} = ${balance.toFixed(2)} €</strong><br><br>
+                📈 <strong>Плановая прибыль:</strong> ${plannedProfit.toFixed(2)} € (выручка ${revenue41.toFixed(2)} € - затраты ${costs81.toFixed(2)} €)
+            </div>
+        `;
+        
+        resultDiv.style.display = 'block';
+    }
+
+    loadDefaultData() {
+        const defaultData = {
+            field10: 0,
+            field81a: 0.00,
+            field81b: 133.56,
+            field41a: 18400.00,
+            field41b: 0.00,
+            field43: 0.00,
+            field66: 25.38,
+            field62: 3085.59,
+            field67: 0.00
+        };
+
+        Object.entries(defaultData).forEach(([fieldId, value]) => {
+            this.setFieldValue(fieldId, value);
+        });
+
+        this.updateTotal81();
+        this.updateTotal41();
+    }
+
+    exportData() {
+        return {
+            company: {
+                name: 'ASSET LOGISTICS GMBH',
+                address: 'Kurze Straße 6, 06366 Köthen',
+                hrb: '34481',
+                steuernummer: 'DE453202061'
+            },
+            period: 'März 2025',
+            timestamp: new Date().toISOString(),
+            software: 'IT AI SOLAR Dashka SmartStb',
+            data: {
+                field10: this.getFieldValue('field10'),
+                field81a: this.getFieldValue('field81a'),
+                field81b: this.getFieldValue('field81b'),
+                field81: this.getFieldValue('field81'),
+                field81c: this.getFieldValue('field81c'),
+                field41a: this.getFieldValue('field41a'),
+                field41b: this.getFieldValue('field41b'),
+                field41: this.getFieldValue('field41'),
+                field41c: this.getFieldValue('field41c'),
+                field43: this.getFieldValue('field43'),
+                field66: this.getFieldValue('field66'),
+                field62: this.getFieldValue('field62'),
+                field67: this.getFieldValue('field67'),
+                field83: this.getFieldValue('field83'),
+                plannedProfit: this.getFieldValue('plannedProfit')
+            },
+            calculations: this.calculateTax()
+        };
+    }
+}
+
+// Глобальные функции
+let vatCalculator;
+
+function updateTotal81() {
+    vatCalculator?.updateTotal81();
+}
+
+function updateTotal41() {
+    vatCalculator?.updateTotal41();
+}
+
+function calculateTax() {
+    return vatCalculator?.calculateTax();
+}
+
+function loadRealData() {
+    vatCalculator?.loadDefaultData();
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    vatCalculator = new VATCalculator();
+    vatCalculator.init();
+});
+=== ./readme/indexmarz.html ===
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT AI SOLAR Dashka SmartStb - Umsatzsteuervoranmeldung März 2025</title>
+    <link rel="stylesheet" href="css/dashka-styles.css">
+    <meta name="description" content="VAT Declaration System for German Companies">
+    <meta name="author" content="IT AI SOLAR Team - Leanid, Dashka, Jimmy">
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <h1>🚀 IT AI SOLAR Dashka SmartStb</h1>
+            <h2>Umsatzsteuervoranmeldung - ASSET LOGISTICS GMBH</h2>
+            <div style="background: #ff6f00; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px;">März 2025</div>
+            <div style="margin-top: 10px; font-size: 12px; color: #555;">
+                Модульная архитектура v2.0 | By Leanid (architect), Dashka (super-senior), Jimmy (developer)
+            </div>
+        </div>
+
+        <div class="company-info">
+            <strong>📋 Компания:</strong> ASSET LOGISTICS GMBH<br>
+            <strong>📍 Адрес:</strong> Hamburg, Grosbrook 19, Germany, 20457 <br>
+            <strong>🏛️ HRB:</strong> 34481<br>
+            <strong>🔢 Steuernummer:</strong> DE453202061<br>
+            <strong>📅 Meldezeitraum:</strong> März 2025
+        </div>
+
+        <!-- Общие данные -->
+        <div class="section">
+            <h3 class="section-header">📝 Allgemeine Angaben</h3>
+            <div class="section-content">
+                <div class="form-row">
+                    <span class="code">10</span>
+                    <span class="description">Berichtigte Anmeldung<br><small>Исправленная декларация</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field10" min="0" max="1" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 81 -->
+        <div class="section">
+            <h3 class="section-header">💰 КОД 81 - Steuerpflichtige Umsätze (19%)</h3>
+            <div class="section-content">
+                <div class="subsection">
+                    <div class="subsection-header">📊 Детализация кода 81</div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">81a</span>
+                        <span class="description">Товары/услуги С НДС (сумма без НДС)<br><small>MIT MwSt (Nettobetrag)</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81a" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">81b</span>
+                        <span class="description">Товары/услуги БЕЗ НДС<br><small>OHNE MwSt</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81b" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row total-row">
+                        <span class="code">81</span>
+                        <span class="description">ИТОГО код 81<br><small>Lieferungen und Leistungen (19%)</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code">81c</span>
+                        <span class="description">НДС81 - Начисленный НДС с кода 81<br><small>MwSt aus Kz 81</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81c" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 41 -->
+        <div class="section">
+            <h3 class="section-header">🎯 КОД 41 - Поставки клиентам</h3>
+            <div class="section-content">
+                <div class="subsection">
+                    <div class="subsection-header">📊 Детализация кода 41</div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">41a</span>
+                        <span class="description">Внутриевропейские поставки (0%)<br><small>Innergemeinschaftliche Lieferungen</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41a" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">41b</span>
+                        <span class="description">Внутренние поставки с НДС (без НДС)<br><small>Inlandslieferungen mit MwSt</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41b" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row total-row">
+                        <span class="code">41</span>
+                        <span class="description">ИТОГО код 41<br><small>Innergemeinschaftliche Lieferungen</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code">41c</span>
+                        <span class="description">НДС41 - Начисленный НДС с кода 41<br><small>MwSt aus Kz 41</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41c" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">43</span>
+                    <span class="description">Экспорт в третьи страны (0%)<br><small>Ausfuhrlieferungen</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field43" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Зачетный НДС -->
+        <div class="section">
+            <h3 class="section-header">⬅️ Abziehbare Vorsteuerbeträge (Зачетный НДС)</h3>
+            <div class="section-content">
+                <div class="form-row">
+                    <span class="code">66</span>
+                    <span class="description">НДС по счетам поставщиков<br><small>Vorsteuer aus Rechnungen</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field66" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">62</span>
+                    <span class="description">Уплаченный импортный НДС<br><small>Entrichtete Einfuhrumsatzsteuer</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field62" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">67</span>
+                    <span class="description">НДС по внутриевропейским приобретениям<br><small>Vorsteuer innergemeinschaftliche Erwerbe</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field67" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateTax()">🧮 Рассчитать итоговую сумму НДС</button>
+
+        <!-- ПЛАНОВАЯ ПРИБЫЛЬ -->
+        <div class="section" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 3px solid #ff9800;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">📈 ПЛАНОВАЯ ПРИБЫЛЬ (ориентировочно)</h3>
+            <div class="section-content">
+                <div class="form-row" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border: 2px solid #ffa000;">
+                    <span style="background: #ff9800; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold;">PROFIT</span>
+                    <span class="description"><strong>Плановая прибыль = Выручка (41) - Затраты (81)</strong><br><small>Orientierungsgewinn = Umsatz (41) - Kosten (81)</small><br><em>⚠️ Не включает все затраты - только ориентировочно!</em></span>
+                    <div class="input-group">
+                        <input type="number" id="plannedProfit" class="calculated" readonly style="font-size: 18px; font-weight: bold; color: #e65100;">
+                        <span style="color: #e65100; font-size: 14px; font-weight: bold;">€</span>
+                    </div>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 13px;">
+                    <strong>📊 Детализация расчета прибыли:</strong><br>
+                    <span id="profitBreakdown"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 83 - ИТОГО -->
+        <div class="section" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border: 3px solid #4caf50;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">🎯 КОД 83 - Zahllast (ИТОГО)</h3>
+            <div class="section-content">
+                <div class="form-row total-row">
+                    <span class="code">83</span>
+                    <span class="description"><strong>К доплате (+) / К возврату (-)</strong><br><small>Verbleibende Umsatzsteuer-Vorauszahlung</small><br><em>83 = 41c - (66 + 62 + 67)</em></span>
+                    <div class="input-group">
+                        <input type="number" id="field83" class="calculated" readonly style="font-size: 18px; font-weight: bold;">
+                        <span style="color: #666; font-size: 14px; font-weight: bold;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="result" class="result-box" style="display: none;">
+            <h3>📊 Результат расчета НДС:</h3>
+            <p id="resultText"></p>
+        </div>
+
+        <!-- КНОПКИ ЭКСПОРТА -->
+        <div class="section" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border: 3px solid #9c27b0;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);">💾 Экспорт данных</h3>
+            <div class="section-content">
+                <div class="export-grid">
+                    <button onclick="printDeclaration()" class="export-btn export-btn-print">
+                        🖨️ Распечатать декларацию
+                    </button>
+                    
+                    <button onclick="exportToPDF()" class="export-btn export-btn-pdf">
+                        📄 Сохранить в PDF
+                    </button>
+                    
+                    <button onclick="exportToExcel()" class="export-btn export-btn-excel">
+                        📊 Сохранить в Excel
+                    </button>
+                    
+                    <button onclick="exportToJSON()" class="export-btn export-btn-json">
+                        💾 Экспорт данных JSON
+                    </button>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 12px; color: #666;">
+                    <strong>📋 Модульная система экспорта:</strong><br>
+                    🖨️ Печать - модуль export-manager.js<br>
+                    📄 PDF - встроенная функция браузера<br>
+                    📊 Excel - CSV экспорт с поддержкой русских символов<br>
+                    💾 JSON - полная структура данных для интеграций<br>
+                    🔄 Компании - автозагрузка из data/companies.json
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
+            <strong>🚀 IT AI SOLAR Dashka SmartStb v2.0</strong><br>
+            <!-- Модульная архитектура | Deployed via /solar/deploy.yml<br> -->
+            <strong>Team:</strong> Leanid (architect) → Dasha (senior) → Jimmy (developer)<br>
+            <!-- <strong>Modules:</strong> vat-calculator.js | export-manager.js | data-loader.js | dashka-styles.css -->
+        </div>
+    </div>
+
+    <!-- Подключение модульных скриптов -->
+    <script src="js/data-loader.js"></script>
+    <script src="js/vat-calculator.js"></script>
+    <script src="js/export-manager.js"></script>
+    
+    <script>
+        // Глобальная инициализация для совместимости
+        window.addEventListener('load', function() {
+            console.log('🚀 IT AI SOLAR Dashka SmartStb v2.0 - Fully Loaded');
+            console.log('📁 Modular Architecture Active');
+            console.log('👥 Team: Leonid → Dasha → Claude → Jimmy');
+        });
+    </script>
+</body>
+</html>
+=== ./js/data-loader.js ===
+/**
+ * IT AI SOLAR Dashka SmartStb - Data Loader
+ * Модуль загрузки и управления данными компаний
+ * @author Jimmy & Dasha's Team
+ * @version 2.0
+ */
+
+class DataLoader {
+    constructor() {
+        this.companiesData = null;
+        this.currentCompany = 'ASSET_LOGISTICS';
+    }
+
+    /**
+     * Инициализация загрузчика данных
+     */
+    async init() {
+        try {
+            await this.loadCompaniesData();
+            this.setupCompanySelector();
+            console.log('📊 Data Loader initialized');
+        } catch (error) {
+            console.warn('⚠️ Could not load companies data, using defaults');
+            this.loadDefaultData();
+        }
+    }
+
+    /**
+     * Загрузка данных компаний из JSON
+     */
+    async loadCompaniesData() {
+        try {
+            const response = await fetch('./data/companies.json');
+            this.companiesData = await response.json();
+        } catch (error) {
+            throw new Error('Failed to load companies data');
+        }
+    }
+
+    /**
+     * Настройка селектора компаний
+     */
+    setupCompanySelector() {
+        // Добавляем селектор компаний в header если его нет
+        const header = document.querySelector('.header');
+        if (header && this.companiesData && !document.getElementById('companySelector')) {
+            const selectorHTML = `
+                <div style="margin-top: 15px;">
+                    <select id="companySelector" style="
+                        padding: 8px 12px; 
+                        border-radius: 6px; 
+                        border: 2px solid #1976d2;
+                        background: white;
+                        font-weight: bold;
+                    ">
+                        ${Object.keys(this.companiesData.companies).map(key => 
+                            `<option value="${key}">${this.companiesData.companies[key].name}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            `;
+            header.insertAdjacentHTML('beforeend', selectorHTML);
+            
+            // Обработчик изменения компании
+            document.getElementById('companySelector').addEventListener('change', (e) => {
+                this.loadCompanyData(e.target.value);
+            });
+        }
+    }
+
+    /**
+     * Загрузка данных конкретной компании
+     */
+    loadCompanyData(companyKey) {
+        if (!this.companiesData || !this.companiesData.companies[companyKey]) {
+            console.warn(`Company ${companyKey} not found`);
+            return;
+        }
+
+        const company = this.companiesData.companies[companyKey];
+        this.currentCompany = companyKey;
+
+        // Обновляем информацию о компании
+        this.updateCompanyInfo(company);
+
+        // Загружаем данные в калькулятор
+        if (window.vatCalculator && company.vatData) {
+            Object.entries(company.vatData).forEach(([fieldId, value]) => {
+                window.vatCalculator.setFieldValue(fieldId, value);
+            });
+
+            window.vatCalculator.updateTotal81();
+            window.vatCalculator.updateTotal41();
+        }
+    }
+
+    /**
+     * Обновление информации о компании в интерфейсе
+     */
+    updateCompanyInfo(company) {
+        const companyInfoDiv = document.querySelector('.company-info');
+        if (companyInfoDiv) {
+            companyInfoDiv.innerHTML = `
+                <strong>📋 Компания:</strong> ${company.name}<br>
+                <strong>📍 Адрес:</strong> ${company.address}<br>
+                <strong>🏛️ HRB:</strong> ${company.hrb}<br>
+                <strong>🔢 Steuernummer:</strong> ${company.steuernummer}<br>
+                <strong>📅 Meldezeitraum:</strong> ${company.period || 'März 2025'}
+            `;
+        }
+
+        // Обновляем заголовок
+        const headerH2 = document.querySelector('.header h2');
+        if (headerH2) {
+            headerH2.textContent = `Umsatzsteuervoranmeldung - ${company.name}`;
+        }
+    }
+
+    /**
+     * Загрузка данных по умолчанию
+     */
+    loadDefaultData() {
+        const defaultCompany = {
+            name: 'ASSET LOGISTICS GMBH',
+            address: 'Kurze Straße 6, 06366 Köthen',
+            hrb: '34481',
+            steuernummer: 'DE453202061',
+            period: 'März 2025',
+            vatData: {
+                field10: 0,
+                field81a: 0.00,
+                field81b: 133.56,
+                field41a: 18400.00,
+                field41b: 0.00,
+                field43: 0.00,
+                field66: 25.38,
+                field62: 3085.59,
+                field67: 0.00
+            }
+        };
+
+        this.updateCompanyInfo(defaultCompany);
+
+        // Загружаем данные в калькулятор
+        if (window.vatCalculator) {
+            Object.entries(defaultCompany.vatData).forEach(([fieldId, value]) => {
+                window.vatCalculator.setFieldValue(fieldId, value);
+            });
+
+            window.vatCalculator.updateTotal81();
+            window.vatCalculator.updateTotal41();
+        }
+    }
+
+    /**
+     * Сохранение текущих данных
+     */
+    saveCurrentData() {
+        if (!window.vatCalculator) return null;
+
+        return {
+            company: this.currentCompany,
+            timestamp: new Date().toISOString(),
+            data: window.vatCalculator.exportData()
+        };
+    }
+
+    /**
+     * Экспорт конфигурации для добавления новой компании
+     */
+    exportCompanyTemplate() {
+        const template = {
+            "COMPANY_KEY": {
+                "name": "COMPANY NAME",
+                "address": "Address",
+                "hrb": "HRB Number",
+                "steuernummer": "DE000000000",
+                "period": "März 2025",
+                "vatData": {
+                    "field10": 0,
+                    "field81a": 0.00,
+                    "field81b": 0.00,
+                    "field41a": 0.00,
+                    "field41b": 0.00,
+                    "field43": 0.00,
+                    "field66": 0.00,
+                    "field62": 0.00,
+                    "field67": 0.00
+                }
+            }
+        };
+
+        const jsonString = JSON.stringify(template, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'company_template.json');
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Глобальный экземпляр
+let dataLoader;
+
+// Инициализация при загрузке DOM
+document.addEventListener('DOMContentLoaded', function() {
+    dataLoader = new DataLoader();
+    // Даем время на инициализацию других модулей
+    setTimeout(() => {
+        dataLoader.init();
+    }, 200);
+});
+=== ./js/vat-calculator.js ===
+/**
+ * IT AI SOLAR Dashka SmartStb - VAT Calculator Module
+ * Модуль расчета НДС для немецких деклараций
+ * @author Dasha's Team & Jimmy
+ * @version 2.0
+ */
+
+class VATCalculator {
+    constructor() {
+        this.vatRate19 = 0.19;
+        this.initialized = false;
+    }
+
+    init() {
+        if (this.initialized) return;
+        
+        this.setupEventListeners();
+        this.loadDefaultData();
+        this.initialized = true;
+        console.log('🚀 VAT Calculator initialized');
+    }
+
+    setupEventListeners() {
+        const inputFields = [
+            'field81a', 'field81b', 'field41a', 'field41b', 
+            'field43', 'field66', 'field62', 'field67'
+        ];
+
+        inputFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element) {
+                element.addEventListener('input', () => this.handleInputChange(fieldId));
+            }
+        });
+    }
+
+    handleInputChange(fieldId) {
+        if (fieldId === 'field81a' || fieldId === 'field81b') {
+            this.updateTotal81();
+        } else if (fieldId === 'field41a' || fieldId === 'field41b') {
+            this.updateTotal41();
+        } else {
+            this.calculateTax();
+        }
+    }
+
+    getFieldValue(fieldId) {
+        const element = document.getElementById(fieldId);
+        return parseFloat(element?.value) || 0;
+    }
+
+    setFieldValue(fieldId, value) {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.value = value.toFixed(2);
+        }
+    }
+
+    updateTotal81() {
+        const field81a = this.getFieldValue('field81a');
+        const field81b = this.getFieldValue('field81b');
+        const total81 = field81a + field81b;
+        
+        this.setFieldValue('field81', total81);
+        
+        const vat81c = field81a * this.vatRate19;
+        this.setFieldValue('field81c', vat81c);
+        
+        this.calculateTax();
+    }
+
+    updateTotal41() {
+        const field41a = this.getFieldValue('field41a');
+        const field41b = this.getFieldValue('field41b');
+        const total41 = field41a + field41b;
+        
+        this.setFieldValue('field41', total41);
+        
+        const vat41c = field41b * this.vatRate19;
+        this.setFieldValue('field41c', vat41c);
+        
+        this.calculateTax();
+    }
+
+    calculateTax() {
+        const field81a = this.getFieldValue('field81a');
+        const field41b = this.getFieldValue('field41b');
+        
+        const vat81c = field81a * this.vatRate19;
+        const vat41c = field41b * this.vatRate19;
+        const totalOutputVat = vat41c;
+        
+        this.setFieldValue('field81c', vat81c);
+        this.setFieldValue('field41c', vat41c);
+        
+        const inputVat66 = this.getFieldValue('field66');
+        const inputVat62 = this.getFieldValue('field62');
+        const inputVat67 = this.getFieldValue('field67');
+        const totalInputVat = inputVat66 + inputVat62 + inputVat67;
+        
+        const balance = totalOutputVat - totalInputVat;
+        this.setFieldValue('field83', balance);
+        
+        this.calculateProfit();
+        this.renderResult(balance, vat81c, vat41c, totalOutputVat, totalInputVat);
+        
+        console.log('[НДС-расчет] Итого: ', { totalOutputVat, totalInputVat, balance });
+
+        return {
+            balance,
+            vat81c,
+            vat41c,
+            totalOutputVat,
+            totalInputVat
+        };
+    }
+
+    calculateProfit() {
+        const revenue41 = this.getFieldValue('field41');
+        const costs81 = this.getFieldValue('field81');
+        const plannedProfit = revenue41 - costs81;
+        
+        this.setFieldValue('plannedProfit', plannedProfit);
+        
+        const profitBreakdown = document.getElementById('profitBreakdown');
+        if (profitBreakdown) {
+            const profitColor = plannedProfit >= 0 ? '#388e3c' : '#d32f2f';
+            const profitIcon = plannedProfit >= 0 ? '📈' : '📉';
+            
+            profitBreakdown.innerHTML = `
+                Выручка (41): <strong style="color: #388e3c;">${revenue41.toFixed(2)} €</strong><br>
+                Затраты (81): <strong style="color: #d32f2f;">${costs81.toFixed(2)} €</strong><br>
+                ${profitIcon} <strong style="color: ${profitColor};">Плановая прибыль: ${plannedProfit.toFixed(2)} €</strong>
+            `;
+        }
+        
+        return plannedProfit;
+    }
+
+    renderResult(balance, vat81c, vat41c, totalOutputVat, totalInputVat) {
+        const resultDiv = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        
+        if (!resultDiv || !resultText) return;
+        
+        const field81a = this.getFieldValue('field81a');
+        const field41b = this.getFieldValue('field41b');
+        const revenue41 = this.getFieldValue('field41');
+        const costs81 = this.getFieldValue('field81');
+        const plannedProfit = revenue41 - costs81;
+        
+        let statusHTML = '';
+        let statusColor = '';
+        
+        if (balance > 0) {
+            statusHTML = `💸 К ДОПЛАТЕ: ${balance.toFixed(2)} €`;
+            statusColor = '#d32f2f';
+        } else if (balance < 0) {
+            statusHTML = `💰 К ВОЗВРАТУ: ${Math.abs(balance).toFixed(2)} €`;
+            statusColor = '#388e3c';
+        } else {
+            statusHTML = `⚖️ БАЛАНС: 0.00 €`;
+            statusColor = '#1976d2';
+        }
+        
+        resultText.innerHTML = `
+            <strong style="color: ${statusColor}; font-size: 20px;">${statusHTML}</strong><br><br>
+            <div style="text-align: left; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+                📊 <strong>Расчет:</strong><br>
+                81c (19% с ${field81a.toFixed(2)}€): ${vat81c.toFixed(2)} € <em>(не учитывается в 83)</em><br>
+                41c (19% с ${field41b.toFixed(2)}€): <strong>${vat41c.toFixed(2)} €</strong><br>
+                <em>Начисленный НДС для 83: ${totalOutputVat.toFixed(2)} €</em><br><br>
+                Зачетный НДС (66+62+67): <strong>${totalInputVat.toFixed(2)} €</strong><br><br>
+                <strong>83 = ${totalOutputVat.toFixed(2)} - ${totalInputVat.toFixed(2)} = ${balance.toFixed(2)} €</strong><br><br>
+                📈 <strong>Плановая прибыль:</strong> ${plannedProfit.toFixed(2)} € (выручка ${revenue41.toFixed(2)} € - затраты ${costs81.toFixed(2)} €)
+            </div>
+        `;
+        
+        resultDiv.style.display = 'block';
+    }
+
+    loadDefaultData() {
+        const defaultData = {
+            field10: 0,
+            field40a: 18400.00,
+            field40b: 0.00,
+            field41: 0.00,
+            field43: 0.00,
+            field4: 18400.00,
+            field81a: 133.56, // Весь НДС по покупке в Германии
+            field81b: 0, // Это у нас приобретение товара и услуг внутри Германии без НДС здесь только товар без НДС
+            field89a: 15755.00, // Это у нас приобретение товара внутри Евросоюза по нулевой ставки НДС отражается начислены в строке 61
+            field89b: 484.96, // оплата пошлины которые добавляются к себестоимости импортного товара 
+            field83: 0.00, // это у нас
+            field8: 16373.52, // 133,56+15755+484,96
+            field66: 25.38, // сумма НДС  
+            field61: 3085.59, // (15755+484.96)*19/100=3085,59
+            field67: 0,
+            field62: 3110.97 // 25,38+3085,59+0=3110,97
+        };
+
+        Object.entries(defaultData).forEach(([fieldId, value]) => {
+            this.setFieldValue(fieldId, value);
+        });
+
+        this.updateTotal81();
+        this.updateTotal41();
+    }
+
+    exportData() {
+        return {
+            company: {
+                name: 'ASSET LOGISTICS GMBH',
+                address: 'Kurze Straße 6, 06366 Köthen',
+                hrb: '34481',
+                steuernummer: 'DE453202061'
+            },
+            period: 'März 2025',
+            timestamp: new Date().toISOString(),
+            software: 'IT AI SOLAR Dashka SmartStb',
+            data: {
+                field10: this.getFieldValue('field10'), // Номер декларации
+                field40a: this.getFieldValue('field40a'),// это у нас реализация с НДС внутри Германии Отар отображаем объем суммы без НДС
+                field40b: this.getFieldValue('field40b'),// Это у нас реализация без НДС внутри Германии отображаем сумму без НДС
+                field41: this.getFieldValue('field41'), // это у нас реализация внутри Евросоюза Чехия Польша Норвегия Отображаем сумму без НДС с нулевой ставкой НДС
+                field43: this.getFieldValue('field43'), // это у нас реализация в третьи страны Казахстан отображаем сумму без НДС с нулевой ставкой НДС
+                field4: this.getFieldValue('field4'), // Это у нас сумма реализации товара именно выручки для определения общей выручки для расчёта прибыли 
+                field81a: this.getFieldValue('field81a'), // У нас приобретение внутри Германии здесь включён только нетто товара без НДС
+                field81b: this.getFieldValue('field81b'), // Это у нас приобретение товара и услуг внутри Германии без НДС здесь только товар без НДС 
+                field89a: this.getFieldValue('field89a'), // Приобретение внутри ЕС по 0% НДС
+                field89b: this.getFieldValue('field89b'), // Импортные пошлины
+                field8: this.getFieldValue('field8'), // Это у нас сумма общего нетто приобретённого для определения себестоимости покупной стоимости для расчёта прибыли 
+                field66: this.getFieldValue('field66'), // Это у нас сумма НДС строке 40 а 
+                field61: this.getFieldValue('field61'), // Это у нас сумма импортного НДС приобретённого внутри Евросоюза товара 
+                field67: this.getFieldValue('field67'), // У нас сумма импортного НДС приобретённого товара из третьих стран
+                field62: this.getFieldValue('field62'), // Это у нас сумма 61 66 67 
+                field83: this.getFieldValue('field83'), // Сумма НДС который нужно уплатить реализации из строки берём 40a И минусуем все что у нас есть по зачетном ндс 62 
+                plannedProfit: this.getFieldValue('plannedProfit')
+            },
+            calculations: this.calculateTax()
+        };
+    }
+}
+
+// Глобальные функции
+let vatCalculator;
+
+function updateTotal81() {
+    vatCalculator?.updateTotal81();
+}
+
+function updateTotal41() {
+    vatCalculator?.updateTotal41();
+}
+
+function calculateTax() {
+    return vatCalculator?.calculateTax();
+}
+
+function loadRealData() {
+    vatCalculator?.loadDefaultData();
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    vatCalculator = new VATCalculator();
+    vatCalculator.init();
+});
+
+console.log("✅ Dashka SmartStb VAT Module v2.0.1 — ready for launch");=== ./js/export-manager.js ===
+/**
+ * IT AI SOLAR Dashka SmartStb - Export Manager
+ * Модуль экспорта данных в различные форматы
+ * @author Jimmy & Dasha's Team
+ * @version 2.0
+ */
+
+class ExportManager {
+    constructor(vatCalculator) {
+        this.vatCalculator = vatCalculator;
+    }
+
+    /**
+     * Печать декларации
+     */
+    printDeclaration() {
+        const exportSection = document.querySelector('.section:last-child');
+        if (exportSection) {
+            exportSection.style.display = 'none';
+        }
+        
+        window.print();
+        
+        setTimeout(() => {
+            if (exportSection) {
+                exportSection.style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    /**
+     * Экспорт в PDF
+     */
+    exportToPDF() {
+        alert('📄 Функция экспорта в PDF:\n\nВ реальном проекте здесь будет использоваться библиотека jsPDF для создания PDF файла с данными декларации.\n\nПока можно использовать функцию печати браузера и сохранить как PDF.');
+        this.printDeclaration();
+    }
+
+    /**
+     * Экспорт в Excel (CSV)
+     */
+    exportToExcel() {
+        const data = this.vatCalculator.exportData();
+        
+        const csvData = [
+            ['IT AI SOLAR Dashka SmartStb - Umsatzsteuervoranmeldung März 2025'],
+            ['ASSET LOGISTICS GMBH'],
+            [''],
+            ['Поле', 'Описание', 'Сумма (€)'],
+            ['10', 'Berichtigte Anmeldung', data.data.field10],
+            [''],
+            ['КОД 81 - Steuerpflichtige Umsätze'],
+            ['81a', 'Товары/услуги С НДС', data.data.field81a],
+            ['81b', 'Товары/услуги БЕЗ НДС', data.data.field81b],
+            ['81', 'ИТОГО код 81', data.data.field81],
+            ['81c', 'НДС81', data.data.field81c],
+            [''],
+            ['КОД 41 - Поставки клиентам'],
+            ['41a', 'Внутриевропейские поставки', data.data.field41a],
+            ['41b', 'Внутренние поставки с НДС', data.data.field41b],
+            ['41', 'ИТОГО код 41', data.data.field41],
+            ['41c', 'НДС41', data.data.field41c],
+            [''],
+            ['43', 'Экспорт в третьи страны', data.data.field43],
+            [''],
+            ['Зачетный НДС'],
+            ['66', 'НДС по счетам поставщиков', data.data.field66],
+            ['62', 'Уплаченный импортный НДС', data.data.field62],
+            ['67', 'НДС внутриевропейские', data.data.field67],
+            [''],
+            ['ИТОГО'],
+            ['83', 'К доплате/возврату', data.data.field83],
+            ['PROFIT', 'Плановая прибыль', data.data.plannedProfit],
+            [''],
+            ['Дата создания:', new Date().toLocaleString('ru-RU')]
+        ];
+
+        this.downloadCSV(csvData, 'VAT_Declaration_März_2025.csv');
+        alert('📊 Данные экспортированы в CSV формат!\n\nФайл можно открыть в Excel.');
+    }
+
+    /**
+     * Экспорт в JSON
+     */
+    exportToJSON() {
+        const exportData = this.vatCalculator.exportData();
+        const jsonString = JSON.stringify(exportData, null, 2);
+        
+        this.downloadFile(jsonString, 'VAT_Declaration_Data_März_2025.json', 'application/json');
+        alert('💾 Данные экспортированы в JSON!\n\nФайл содержит все данные декларации и может быть использован для импорта в другие системы.');
+    }
+
+    /**
+     * Скачивание CSV файла
+     */
+    downloadCSV(data, filename) {
+        let csvContent = data.map(row => 
+            row.map(cell => `"${cell}"`).join(',')
+        ).join('\n');
+
+        const BOM = '\uFEFF';
+        csvContent = BOM + csvContent;
+
+        this.downloadFile(csvContent, filename, 'text/csv;charset=utf-8;');
+    }
+
+    /**
+     * Универсальная функция скачивания файлов
+     */
+    downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Глобальные функции экспорта
+let exportManager;
+
+function printDeclaration() {
+    exportManager?.printDeclaration();
+}
+
+function exportToPDF() {
+    exportManager?.exportToPDF();
+}
+
+function exportToExcel() {
+    exportManager?.exportToExcel();
+}
+
+function exportToJSON() {
+    exportManager?.exportToJSON();
+}
+
+// Инициализация после загрузки VAT Calculator
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (window.vatCalculator) {
+            exportManager = new ExportManager(window.vatCalculator);
+            console.log('📊 Export Manager initialized');
+        }
+    }, 100);
+});
+=== ./css/dashka-styles.css ===
+/* IT AI SOLAR Dashka SmartStb - Complete Styles v2.0 */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.form-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 1px solid #e0e0e0;
+}
+
+.header {
+    text-align: center;
+    color: #1565c0;
+    border-bottom: 4px solid #1976d2;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #bbdefb 0%, #e3f2fd 100%);
+    margin: -30px -30px 30px -30px;
+    padding: 30px;
+    border-radius: 12px 12px 0 0;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.company-info {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+    padding: 20px;
+    border-left: 5px solid #4caf50;
+    margin-bottom: 25px;
+    border-radius: 8px;
+}
+
+.section {
+    margin-bottom: 25px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    padding: 15px 20px;
+    font-weight: bold;
+    margin: 0;
+    font-size: 16px;
+}
+
+.section-content {
+    padding: 20px;
+    background: #fafafa;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.form-row:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #1976d2;
+}
+
+.subsection {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border: 1px solid #ff9800;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.subsection-header {
+    font-weight: bold;
+    color: #e65100;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.code {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+}
+
+.code-sub {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    min-width: 35px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.description {
+    flex: 1;
+    margin: 0 20px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="number"] {
+    width: 140px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+input[type="number"]:focus {
+    border-color: #1976d2;
+    outline: none;
+    box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+}
+
+.calculated {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border-color: #ffa000;
+    font-weight: bold;
+    color: #e65100;
+}
+
+.total-row {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    border: 2px solid #4caf50;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.calculate-btn {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.result-box {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 3px solid #2196f3;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.vat-label {
+    background: #4caf50; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.export-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 15px;
+}
+
+.export-btn {
+    border: none; 
+    padding: 15px 20px; 
+    border-radius: 8px;
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: bold;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+}
+
+.export-btn-print {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
+.export-btn-pdf {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+}
+
+.export-btn-excel {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.export-btn-json {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+/* Селектор компаний */
+select {
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    border: 2px solid #1976d2;
+    background: white;
+    font-weight: bold;
+}
+=== ./index.html ===
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT AI SOLAR Dashka SmartStb - Umsatzsteuervoranmeldung April 2025</title>
+    <link rel="stylesheet" href="css/dashka-styles.css">
+    <meta name="description" content="VAT Declaration System for German Companies">
+    <meta name="author" content="IT AI SOLAR Team - Leanid, Dashka, Jimmy">
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <h1>🚀 IT AI SOLAR Dashka SmartStb</h1>
+            <h2>Umsatzsteuervoranmeldung - ASSET LOGISTICS GMBH</h2>
+            <div style="background: #ff6f00; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px;">April 2025</div>
+            <div style="margin-top: 10px; font-size: 12px; color: #555;">
+                Модульная архитектура v2.0 | By Leanid (architect), Dashka (super-senior), Jimmy (developer)
+            </div>
+        </div>
+
+        <div class="company-info">
+            <strong>📋 Компания:</strong> ASSET LOGISTICS GMBH<br>
+            <strong>📍 Адрес:</strong> Köthen, Kurze Strase 6, Germany, 06366 <br>
+            <strong>🏛️ HRB:</strong> 34481<br>
+            <strong>🔢 Steuernummer:</strong> DE453202061<br>
+            <strong>📅 Meldezeitraum:</strong> April 2025
+        </div>
+
+        <!-- Общие данные -->
+        <div class="section">
+            <h3 class="section-header">📝 Allgemeine Angaben</h3>
+            <div class="section-content">
+                <div class="form-row">
+                    <span class="code">10</span>
+                    <span class="description">Berichtigte Anmeldung<br><small>Исправленная декларация</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field10" min="0" max="1" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 81 -->
+        <div class="section">
+            <h3 class="section-header">💰 КОД 81 - Steuerpflichtige Umsätze (19%)</h3>
+            <div class="section-content">
+                <div class="subsection">
+                    <div class="subsection-header">📊 Детализация кода 81</div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">81a</span>
+                        <span class="description">Товары/услуги С НДС (сумма без НДС)<br><small>MIT MwSt (Nettobetrag)</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81a" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">81b</span>
+                        <span class="description">Товары/услуги БЕЗ НДС<br><small>OHNE MwSt</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81b" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row total-row">
+                        <span class="code">81</span>
+                        <span class="description">ИТОГО код 81<br><small>Lieferungen und Leistungen (19%)</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code">81c</span>
+                        <span class="description">НДС81 - Начисленный НДС с кода 81<br><small>MwSt aus Kz 81</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field81c" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 41 -->
+        <div class="section">
+            <h3 class="section-header">🎯 КОД 41 - Поставки клиентам</h3>
+            <div class="section-content">
+                <div class="subsection">
+                    <div class="subsection-header">📊 Детализация кода 41</div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">41a</span>
+                        <span class="description">Внутриевропейские поставки (0%)<br><small>Innergemeinschaftliche Lieferungen</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41a" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code-sub">41b</span>
+                        <span class="description">Внутренние поставки с НДС (без НДС)<br><small>Inlandslieferungen mit MwSt</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41b" step="0.01" placeholder="0.00">
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row total-row">
+                        <span class="code">41</span>
+                        <span class="description">ИТОГО код 41<br><small>Innergemeinschaftliche Lieferungen</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <span class="code">41c</span>
+                        <span class="description">НДС41 - Начисленный НДС с кода 41<br><small>MwSt aus Kz 41</small></span>
+                        <div class="input-group">
+                            <input type="number" id="field41c" class="calculated" readonly>
+                            <span style="color: #666; font-size: 12px;">€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">43</span>
+                    <span class="description">Экспорт в третьи страны (0%)<br><small>Ausfuhrlieferungen</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field43" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Зачетный НДС -->
+        <div class="section">
+            <h3 class="section-header">⬅️ Abziehbare Vorsteuerbeträge (Зачетный НДС)</h3>
+            <div class="section-content">
+                <div class="form-row">
+                    <span class="code">66</span>
+                    <span class="description">НДС по счетам поставщиков<br><small>Vorsteuer aus Rechnungen</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field66" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">62</span>
+                    <span class="description">Уплаченный импортный НДС<br><small>Entrichtete Einfuhrumsatzsteuer</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field62" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <span class="code">67</span>
+                    <span class="description">НДС по внутриевропейским приобретениям<br><small>Vorsteuer innergemeinschaftliche Erwerbe</small></span>
+                    <div class="input-group">
+                        <input type="number" id="field67" step="0.01" placeholder="0.00">
+                        <span style="color: #666; font-size: 12px;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateTax()">🧮 Рассчитать итоговую сумму НДС</button>
+
+        <!-- ПЛАНОВАЯ ПРИБЫЛЬ -->
+        <div class="section" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 3px solid #ff9800;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">📈 ПЛАНОВАЯ ПРИБЫЛЬ (ориентировочно)</h3>
+            <div class="section-content">
+                <div class="form-row" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border: 2px solid #ffa000;">
+                    <span style="background: #ff9800; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold;">PROFIT</span>
+                    <span class="description"><strong>Плановая прибыль = Выручка (41) - Затраты (81)</strong><br><small>Orientierungsgewinn = Umsatz (41) - Kosten (81)</small><br><em>⚠️ Не включает все затраты - только ориентировочно!</em></span>
+                    <div class="input-group">
+                        <input type="number" id="plannedProfit" class="calculated" readonly style="font-size: 18px; font-weight: bold; color: #e65100;">
+                        <span style="color: #e65100; font-size: 14px; font-weight: bold;">€</span>
+                    </div>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 13px;">
+                    <strong>📊 Детализация расчета прибыли:</strong><br>
+                    <span id="profitBreakdown"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОД 83 - ИТОГО -->
+        <div class="section" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border: 3px solid #4caf50;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">🎯 КОД 83 - Zahllast (ИТОГО)</h3>
+            <div class="section-content">
+                <div class="form-row total-row">
+                    <span class="code">83</span>
+                    <span class="description"><strong>К доплате (+) / К возврату (-)</strong><br><small>Verbleibende Umsatzsteuer-Vorauszahlung</small><br><em>83 = 41c - (66 + 62 + 67)</em></span>
+                    <div class="input-group">
+                        <input type="number" id="field83" class="calculated" readonly style="font-size: 18px; font-weight: bold;">
+                        <span style="color: #666; font-size: 14px; font-weight: bold;">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="result" class="result-box" style="display: none;">
+            <h3>📊 Результат расчета НДС:</h3>
+            <p id="resultText"></p>
+        </div>
+
+        <!-- КНОПКИ ЭКСПОРТА -->
+        <div class="section" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border: 3px solid #9c27b0;">
+            <h3 class="section-header" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);">💾 Экспорт данных</h3>
+            <div class="section-content">
+                <div class="export-grid">
+                    <button onclick="printDeclaration()" class="export-btn export-btn-print">
+                        🖨️ Распечатать декларацию
+                    </button>
+                    
+                    <button onclick="exportToPDF()" class="export-btn export-btn-pdf">
+                        📄 Сохранить в PDF
+                    </button>
+                    
+                    <button onclick="exportToExcel()" class="export-btn export-btn-excel">
+                        📊 Сохранить в Excel
+                    </button>
+                    
+                    <button onclick="exportToJSON()" class="export-btn export-btn-json">
+                        💾 Экспорт данных JSON
+                    </button>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 12px; color: #666;">
+                    <strong>📋 Модульная система экспорта:</strong><br>
+                    🖨️ Печать - модуль export-manager.js<br>
+                    📄 PDF - встроенная функция браузера<br>
+                    📊 Excel - CSV экспорт с поддержкой русских символов<br>
+                    💾 JSON - полная структура данных для интеграций<br>
+                    🔄 Компании - автозагрузка из data/companies.json
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
+            <strong>🚀 IT AI SOLAR Dashka SmartStb v2.0</strong><br>
+            <!-- Модульная архитектура | Deployed via /solar/deploy.yml<br> -->
+            <strong>Team:</strong> Leanid (architect) → Dasha (senior) → Jimmy (developer)<br>
+            <!-- <strong>Modules:</strong> vat-calculator.js | export-manager.js | data-loader.js | dashka-styles.css -->
+        </div>
+    </div>
+
+    <!-- Подключение модульных скриптов -->
+    <script src="js/data-loader.js"></script>
+    <script src="js/vat-calculator.js"></script>
+    <script src="js/export-manager.js"></script>
+    
+    <script>
+        // Глобальная инициализация для совместимости
+        window.addEventListener('load', function() {
+            console.log('🚀 IT AI SOLAR Dashka SmartStb v2.0 - Fully Loaded');
+            console.log('📁 Modular Architecture Active');
+            console.log('👥 Team: Leonid → Dasha → Claude → Jimmy');
+        });
+    </script>
+</body>
+</html>
+=== ./docs/README.md ===
+Hamburg, Grosbrook 19, Germany, 20457
